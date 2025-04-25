@@ -1,3 +1,3 @@
-# FlexAssays 0.1.0
+# FlexAssays 0.99.0
 
-* Initial Bioconductor submission.
+* Pre-release for Bioconductor submission.
