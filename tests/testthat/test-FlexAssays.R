@@ -120,6 +120,18 @@ test_that("Create a FlexAssays with a list, and colFlex = 'fixed'", {
   expect_equal(colnames(mats), colnames(mat1))
 })
 
+test_that("Creating a FlexAssays with duplicated dimnames should fail.", {
+  mat1 <- generate_sparse_matrix(8, 6)
+  mat2 <- generate_sparse_matrix(8, 6)
+  colnames(mat1)[2] <- colnames(mat1)[1]
+  expect_error(FlexAssays(list(mat1, mat2)))
+
+  mat1 <- generate_sparse_matrix(8, 6)
+  mat2 <- generate_sparse_matrix(8, 6)
+  rownames(mat2)[2] <- rownames(mat2)[1]
+  expect_error(FlexAssays(list(mat1, mat2)))
+})
+
 test_that("FlexAssays .DollarNames", {
 
   mat1 <- generate_sparse_matrix(8, 6)
@@ -443,6 +455,21 @@ test_that("Add new assay without dimension names", {
 
   mat3 <- generate_sparse_matrix(8, 6)
   mat3 <- unname(mat3)
+  expect_error(mats[[3]] <- mat3)
+})
+
+test_that("Adding new assay with duplicated dimension names should fail", {
+  mat1 <- generate_sparse_matrix(8, 6)
+  mat2 <- generate_sparse_matrix(8, 6)
+
+  mats <- FlexAssays(list(mat1, mat2))
+
+  mat3 <- generate_sparse_matrix(8, 6)
+  rownames(mat3)[1] <- rownames(mat3)[2]
+  expect_error(mats[[3]] <- mat3)
+
+  mat3 <- generate_sparse_matrix(8, 6)
+  colnames(mat3)[1] <- colnames(mat3)[2]
   expect_error(mats[[3]] <- mat3)
 })
 
