@@ -27,15 +27,16 @@ Collate:
     'FlexAssays-subset.R'
     'roxygen2-doc.R'
 Depends: 
-    R(>= 4.3.0),
+    R (>= 4.3.0),
     BiocGenerics,
     Matrix,
     methods,
     S4Vectors,
-    SparseArray
+    SparseArray (>= 1.4.8)
 Suggests: 
     BiocStyle,
     knitr,
+    MultiAssayExperiment,
     qpdf,
     rmarkdown,
     testthat (>= 3.0.0)
