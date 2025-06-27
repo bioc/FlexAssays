@@ -177,6 +177,7 @@ setMethod("rownames<-", "FlexAssays", function(x, value) {
     return(x)
   }
   rownames(x@rowMap) <- value
+  .valid_logical_map_rownames(x@rowMap)
   x
 })
 
@@ -189,6 +190,7 @@ setMethod("colnames<-", "FlexAssays", function(x, value) {
     return(x)
   }
   rownames(x@colMap) <- value
+  .valid_logical_map_rownames(x@colMap)
   x
 })
 

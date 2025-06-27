@@ -676,6 +676,12 @@ test_that("FlexAssays 'colnames'", {
   mats2 <- mats
   expect_warning(colnames(mats2) <- NULL)
   expect_equal_no_attr(colnames(mats2), colnames(mats))
+
+  # Fail to set duplicated colnames to FlexAssays
+  expect_error(colnames(mats2)[1] <- colnames(mats2)[2])
+  old.names <- colnames(mats2)
+  old.names[1] <- old.names[2]
+  expect_error(colnames(mats2) <- old.names)
 })
 
 test_that("FlexAssays 'rownames'", {
@@ -702,6 +708,12 @@ test_that("FlexAssays 'rownames'", {
   mats2 <- mats
   expect_warning(rownames(mats2) <- NULL)
   expect_equal_no_attr(rownames(mats2), rownames(mats))
+
+  # Fail to set duplicated rownames to FlexAssays
+  expect_error(rownames(mats2)[1] <- rownames(mats2)[2])
+  old.names <- rownames(mats2)
+  old.names[1] <- old.names[2]
+  expect_error(rownames(mats2) <- old.names)
 })
 
 test_that("FlexAssays 'dimnames'", {
