@@ -23,8 +23,8 @@ particularly well-suited for representing multimodal or multi-batch biological
 data, such as single-cell experiments with partially overlapping features or 
 samples.
 
-This vignette introduces the core design of the `FlexAssays` class, explains how 
-to construct and manipulate `FlexAssays` objects, and demonstrates how 
+This vignette introduces the core design of the `FlexAssays` class, explains 
+how to construct and manipulate `FlexAssays` objects, and demonstrates how 
 flexibility rules control the mapping between assay dimensions and global 
 identifiers.
 
@@ -35,8 +35,8 @@ overall structure of a `FlexAssays` object. A `FlexAssays` object consists of
 the following components:
 
 * **A list of matrix-like assays.** Each assay must have both row and column 
-names. The actual storage formats are handled by the subclasses of `FlexAssays`, 
-such as `SimpleFlexAssays`.
+names. The actual storage formats are handled by the subclasses of 
+`FlexAssays`, such as `SimpleFlexAssays`.
 
 * `rowMap` and `colMap`: Logical mapping matrices that define how each assay 
 aligns with the global row and column spaces. These two sparse matrices track 
@@ -55,7 +55,7 @@ global space.
   * `"fixed"`: All assays must share identical names.
   * `"bounded"`: New assays must not introduce new names.
 
-```{r, echo=FALSE, fig.width=20, fig.height=10}
+```{r FlexAssays-image, echo=FALSE, fig.width=20, fig.height=10}
 knitr::include_graphics("FlexAssays.svg", dpi = 300)
 ```
 
@@ -74,7 +74,7 @@ Throughout this section, we assume both `rowFlex` and `colFlex` are set to
 `"free"`, which allows new assays to introduce previously unseen row or column 
 names. Flexibility modes will be discussed in more detail in a later section.
 
-```{r, message=FALSE}
+```{r prepare, message=FALSE}
 library(FlexAssays)
 
 # Define a helper function to generate random sparse matrices
@@ -92,7 +92,7 @@ We can initialize a `FlexAssays` from a list of matrix-like objects. Each matrix
 must have row and column names. The global row and column spaces will be 
 determined based on the union of the row and column names across all assays.
 
-```{r}
+```{r FlexAssays-from-list}
 m1 <- generate_sparse_matrix(10, 6)
 m2 <- generate_sparse_matrix(8, 13)
 
@@ -106,7 +106,7 @@ Alternatively, we can create a `FlexAssays` by passing a single matrix-like
 object. In this case, `rownames` and `colnames` will be derived from the matrix 
 itself.
 
-```{r}
+```{r FlexAssays-from-matrix}
 fa2 <- FlexAssays(m1)
 fa2
 ```
@@ -116,7 +116,7 @@ fa2
 If the input is already a `FlexAssays` object, the constructor will simply 
 return the same object without modification.
 
-```{r}
+```{r FlexAssays-from-FlexAssays}
 fa3 <- FlexAssays(fa1)
 fa3
 ```
@@ -126,7 +126,7 @@ fa3
 In some scenarios, you may wish to explicitly define the global `rownames` and 
 `colnames` at the time of construction, without relying on input assays.
 
-```{r}
+```{r FlexAssays-from-dimnames}
 fa4 <- FlexAssays(rownames = sample(LETTERS, 10), colnames = sample(letters, 8))
 fa4
 ```
@@ -136,7 +136,7 @@ fa4
 been explicitly defined, and any input matrix may introduce conflicts. 
 Attempting to do so will raise an **error**:
 
-```{r, error = TRUE}
+```{r FlexAssays-from-dimnames-error, error = TRUE}
 fa4 <- FlexAssays(
   m1,
   rownames = sample(LETTERS, 10), 
@@ -147,8 +147,8 @@ fa4 <- FlexAssays(
 # `rowMap` and `colMap`
 
 In this section, we introduce two core components of a `FlexAssays` object: 
-`rowMap` and `colMap`. These logical matrices record how the rows and columns of 
-each assay align with the global row and column names, ensuring consistency 
+`rowMap` and `colMap`. These logical matrices record how the rows and columns 
+of each assay align with the global row and column names, ensuring consistency 
 across assays that may have different dimensions.
 
 * `rowMap` is a logical `SVT_SparseMatrix` that defines how the rows of each 
@@ -156,21 +156,21 @@ assay align with the global row names. Each row of the `rowMap` corresponds to
 a global row name, and each column corresponds to an assay. The entries are 
 `TRUE` if that particular row is present in the respective assay:
 
-```{r}
+```{r rowMap}
 rowMap(fa1)
 ```
 
 `colMap` operates in the same manner, but for the global column space:
 
-```{r}
+```{r colMap}
 colMap(fa1)
 ```
 
 We can use `rowMap()` and `colMap()` of a `FlexAssays` object to inspect how 
 each assay's dimensions are mapped. However, these internal mappings are 
 intended primarily for developers, and should not be modified directly by the 
-end-users. Therefore, replacement methods like `rowMap<-` and `colMap<-` are not 
-provided.
+end-users. Therefore, replacement methods like `rowMap<-` and `colMap<-` are 
+not provided.
 
 # Common operations on `FlexAssays`
 
@@ -181,18 +181,18 @@ simple accessor functions. To check its dimensions, use `dim()`, which returns
 a two-element vector representing the number of rows and columns in the global 
 space:
 
-```{r}
+```{r dim}
 dim(fa1)
 ```
 
 To inspect the global row and column names, use `dimnames()`, `rownames()`, or 
 `colnames()`:
 
-```{r}
+```{r rownames}
 rownames(fa1)
 ```
 
-```{r}
+```{r colnames}
 colnames(fa1)
 ```
 
@@ -202,46 +202,46 @@ To get basic information about the assays in a `FlexAssays` object, use
 * `length()` returns the number of assays.
 * `names()` returns a character vector of the assay names.
 
-```{r}
+```{r length}
 length(fa1)
 ```
 
-```{r}
+```{r names}
 names(fa1) <- c("aa", "bb")
 names(fa1)
 ```
 
 These methods allow you to quickly explore the global structure and metadata of 
-a `FlexAssays` object. Exploring this information is often the first step before 
-manipulating the internal assays.
+a `FlexAssays` object. Exploring this information is often the first step 
+before manipulating the internal assays.
 
 ## Fetching assays
 
 We can retrieve the list of assays from a `FlexAssays` object using 
 `getAssays()`. This function should always return a `SimpleList` containing all 
-assays. By default, the returned assays will include dimension names mapped from 
-the global row and column spaces.
+assays. By default, the returned assays will include dimension names mapped 
+from the global row and column spaces.
 
-```{r}
+```{r getAssays}
 getAssays(fa1)
 ```
 
 To access an individual assay, index into the list:
 
-```{r}
+```{r getAssays-subset1}
 getAssays(fa1)[[1]]
 ```
 
-```{r}
+```{r getAssays-subset2}
 getAssays(fa1)[[2]]
 ```
 
-**Note**: The dimensional orders of the fetched `getAssays(fa1)[[2]]` may differ 
-from the original matrix `m2`, but all corresponding entries remain correct. 
-Internally, all assays are reordered to match the global dimension names defined 
-in `rowMap` and `colMap`.
+**Note**: The dimensional orders of the fetched `getAssays(fa1)[[2]]` may 
+differ from the original matrix `m2`, but all corresponding entries remain 
+correct. Internally, all assays are reordered to match the global dimension 
+names defined in `rowMap` and `colMap`.
 
-```{r}
+```{r original-matrix}
 m2
 ```
 
@@ -250,32 +250,32 @@ and column names. Since the dimension names are already managed by `rowMap` and
 `colMap`, they are restored on demand. We can suppress this behavior by setting 
 `withDimnames = FALSE`:
 
-```{r}
+```{r getAssays-without-dimnames}
 getAssays(fa1, withDimnames = FALSE)[[2]]
 ```
 
 To fetch a single assay directly, we may also use the wrapper function 
 `getOneAssay()`, which applies only the dimension name restoration:
 
-```{r}
+```{r getOneAssay}
 getOneAssay(fa1, 2)
 ```
 
 In addition, `FlexAssays` supports list-like extraction via `[[` and `$`, just 
 like `SimpleList` or similar list-based containers:
 
-```{r}
+```{r list-subset}
 fa1[[1]]
 ```
 
-```{r}
+```{r list-subset-name}
 fa1[['aa']]
 ```
 
 The `$` operator can be used to extract assays by name, but it only works when 
 the `FlexAssays` object has non-empty assay names:
 
-```{r}
+```{r list-subset-dollar}
 fa1$bb
 ```
 
@@ -286,11 +286,11 @@ existing ones, and removing assays from a `FlexAssays`. These operations are
 subject to the flexibility rules defined by `rowFlex` and `colFlex`. In this 
 section, we continue to assume both are set to `"free"`.
 
-We can add a new assay to an existing `FlexAssays` by assigning it to the object 
-using `[[<-`. This operation ensures that the assay's row and column names are 
-aligned to the global dimension space.
+We can add a new assay to an existing `FlexAssays` by assigning it to the 
+object using `[[<-`. This operation ensures that the assay's row and column 
+names are aligned to the global dimension space.
 
-```{r}
+```{r set-new-assay}
 # Add a new assay to the FlexAssays object
 m3 <- generate_sparse_matrix(10, 8)
 fa1[["m3"]] <- m3
@@ -299,7 +299,7 @@ fa1
 
 Alternatively, we can use the `$<-` operator to add a new assay by name:
 
-```{r}
+```{r set-new-assay-dollar}
 m4 <- generate_sparse_matrix(4, 8)
 fa1$m4 <- m4
 fa1
@@ -308,7 +308,7 @@ fa1
 To replace an existing assay, assign a new assay to the corresponding name or 
 index with `[[<-` or `$<-`:
 
-```{r}
+```{r set-new-assay-list}
 m3 <- generate_sparse_matrix(6, 5)
 m4 <- generate_sparse_matrix(4, 8)
 fa1[[3]] <- m3
@@ -318,7 +318,7 @@ fa1
 
 To remove an existing assay, assign `NULL` to its name or index:
 
-```{r}
+```{r remove-assay}
 fa1$m4 <- NULL
 fa1
 ```
@@ -326,27 +326,27 @@ fa1
 We can also modify the content of an existing assay directly using standard 
 indexing:
 
-```{r}
+```{r modify-assay}
 fa1$m3[1, ] <- 1
 fa1$m3
 ```
 
 ## Renaming rows and columns
 
-We can rename the global row and column names of a `FlexAssays` object using the 
-standard `rownames()<-` and `colnames()<-` functions.
+We can rename the global row and column names of a `FlexAssays` object using 
+the standard `rownames()<-` and `colnames()<-` functions.
 
-```{r}
+```{r modify-dimnames}
 rownames(fa1) <- paste0("AAA_", rownames(fa1))
 colnames(fa1) <- paste0("BBB_", colnames(fa1))
 fa1
 ```
 
 This operation updates the row and column names of all assays and automatically 
-reflects the changes across all assays, ensuring consistent alignment throughout 
-the `FlexAssays` object.
+reflects the changes across all assays, ensuring consistent alignment 
+throughout the `FlexAssays` object.
 
-```{r}
+```{r update-internal-assay}
 fa1$m3
 ```
 
@@ -356,25 +356,25 @@ We can subset a `FlexAssays` object using the standard matrix-like indexing
 syntax, e.g., `[i, j]`. When subsetting, the global row and column names are 
 respected, and the assays are subsetted accordingly:
 
-```{r}
+```{r subset-index}
 fa1[1:4, 1:5]
 ```
 
 Both logical and character indexing are supported:
 
-```{r}
+```{r subset-dimnames}
 fa1[rownames(fa1)[1:4], colnames(fa1)[1:5]]
 ```
 
-```{r}
+```{r subset-logical}
 fa1[rownames(fa1) %in% paste0("AAA_", LETTERS[1:10]), ]
 ```
 
-By default, assays that become empty after subsetting are automatically dropped. 
-For example, if we subset out all rows used by `m3`, the resulting FlexAssays 
-object will exclude `m3`:
+By default, assays that become empty after subsetting are automatically 
+dropped. For example, if we subset out all rows used by `m3`, the resulting 
+`FlexAssays` object will exclude `m3`:
 
-```{r}
+```{r subset-drop}
 # This will make 'm3' empty
 fa2 <- fa1[!rownames(fa1) %in% rownames(fa1$m3), ]
 fa2
@@ -382,7 +382,7 @@ fa2
 
 To retain empty assays after subsetting, set `drop = FALSE`:
 
-```{r}
+```{r subset-nodrop}
 fa2 <- fa1[!rownames(fa1) %in% rownames(fa1$m3), , drop = FALSE]
 fa2
 ```
@@ -395,7 +395,7 @@ but can be cleaned up using `cleanDimMaps()`.
 
 For example, after removing assay `m3`, some global row names may become unused:
 
-```{r}
+```{r rowmap-after-removing-assay}
 fa1$m3 <- NULL
 rowMap(fa1)
 ```
@@ -403,7 +403,7 @@ rowMap(fa1)
 Calling `cleanDimMaps(fa1)` will remove any global rows or columns that are no 
 longer mapped to any assay:
 
-```{r}
+```{r clean-rowmap}
 fa1 <- cleanDimMaps(fa1)
 rowMap(fa1)
 ```
@@ -412,14 +412,14 @@ rowMap(fa1)
 
 ## `rowFlex` and `colFlex`
 
-In this section, we explain the roles of the `rowFlex` and `colFlex` attributes, 
-which control how assays interact with the global row and column dimensions in 
-a `FlexAssays` object.
+In this section, we explain the roles of the `rowFlex` and `colFlex` 
+attributes, which control how assays interact with the global row and column 
+dimensions in a `FlexAssays` object.
 
-Flexibility rules must be specified at the time of object initialization. We can 
-access these rules using the `rowFlex()` and `colFlex()` getters:
+Flexibility rules must be specified at the time of object initialization. We 
+can access these rules using the `rowFlex()` and `colFlex()` getters:
 
-```{r}
+```{r rowflex}
 fa1 <- FlexAssays(list(m1, m2))
 rowFlex(fa1)
 ```
@@ -428,25 +428,25 @@ By default, the flexibility mode is `"free"`, meaning the global row or column
 names can be extended automatically. For example, we first check the original 
 row names of `fa1`:
 
-```{r}
+```{r check-rownames-for-rowflex}
 rownames(fa1)
 ```
 
-Now we add a new assay `m3` that contains new row names not present in `fa1`. In 
-`"free"` mode, these names will be added to the global row space:
+Now we add a new assay `m3` that contains new row names not present in `fa1`. 
+In `"free"` mode, these names will be added to the global row space:
 
-```{r}
+```{r extend-rows-for-free}
 m3 <- generate_sparse_matrix(6, 12)
 rownames(m3)[1:3] <- setdiff(LETTERS, c(rownames(fa1), rownames(m3)))[1:3]
 fa1$m3 <- m3
 rownames(fa1)
 ```
 
-In the next example, we will set `rowFlex` to `"bounded"` when `fa1` is created. 
-Since `m3` contains row names not included in `fa1`, an error will be raised 
-when `m3` is added.
+In the next example, we will set `rowFlex` to `"bounded"` when `fa1` is 
+created. Since `m3` contains row names not included in `fa1`, an error will be 
+raised when `m3` is added.
 
-```{r, error = TRUE}
+```{r extend-rows-for-bounded-will-fail, error = TRUE}
 fa1 <- FlexAssays(list(m1, m2), rowFlex = "bounded")
 fa1$m3 <- m3
 ```
@@ -454,7 +454,7 @@ fa1$m3 <- m3
 This constraint also applies to empty `FlexAssays` objects initialized with 
 explicit global row names:
 
-```{r, error = TRUE}
+```{r predefined-rowflex, error = TRUE}
 # Create an empty FlexAssays with pre-defined row names
 fa2 <- FlexAssays(rownames = LETTERS[1:6], rowFlex = "bounded")
 
@@ -496,10 +496,10 @@ fa2
 ```
 
 For `"bounded"` flexibility, the valid dimension names are determined by the 
-union of the initial assays, unless explicitly defined using `rownames = ...` or 
-`colnames = ...` at construction. This mode is useful for scenarios where each 
-assay may represent a subset of the full dataset, such as raw counts for all 
-genes and normalized values for only highly variable genes in a typical 
+union of the initial assays, unless explicitly defined using `rownames = ...` 
+or `colnames = ...` at construction. This mode is useful for scenarios where 
+each assay may represent a subset of the full dataset, such as raw counts for 
+all genes and normalized values for only highly variable genes in a typical 
 single-cell analysis workflow.
 
 If you want all assays to use exactly the same set of row or column names, use 
@@ -544,11 +544,11 @@ fa1
 
 ## `assayClasses`
 
-In addition to controlling global dimension names, `FlexAssays` can also enforce 
-restrictions on the class of internal assays using the `assayClasses` argument. 
-This is particularly useful when storing matrices that must support specific 
-algorithms or backends, such as `DelayedArray`, `CsparseMatrix`, or other sparse 
-matrix representations.
+In addition to controlling global dimension names, `FlexAssays` can also 
+enforce restrictions on the class of internal assays using the `assayClasses` 
+argument. This is particularly useful when storing matrices that must support 
+specific algorithms or backends, such as `DelayedArray`, `CsparseMatrix`, or 
+other sparse matrix representations.
 
 The `assayClasses` constraint is set at initialization and cannot be modified 
 afterward. For example, here we construct a `FlexAssays` object that only 

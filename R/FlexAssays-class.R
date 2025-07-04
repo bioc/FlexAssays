@@ -229,7 +229,6 @@ FlexAssays <- function(
   cnames <- unique(unlist(lapply(assays, colnames)))
   rowMap <- sparseLogMap(as.character(rnames), length(assays), names(assays))
   colMap <- sparseLogMap(as.character(cnames), length(assays), names(assays))
-
   for (i in seq_along(assays)) {
     mappedRowNames(rowMap, i) <- rownames(assays[[i]])
     mappedRowNames(colMap, i) <- colnames(assays[[i]])

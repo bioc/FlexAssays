@@ -292,8 +292,7 @@ setOneAssay <- function(x, i, new.assay) {
     x@rowMap <- removeMapCols(x@rowMap, i)
     x@colMap <- removeMapCols(x@colMap, i)
     assays[[i]] <- new.assay
-    x <- setRawAssays(x, new.assays = assays, check = FALSE)
-    return(x)
+    return(setRawAssays(x, new.assays = assays, check = FALSE))
   }
   .valid_assay_classes(new.assay, x@assayClasses)
   if (nrow(new.assay) > 0 & length(rownames(new.assay)) == 0) {
@@ -335,8 +334,8 @@ setOneAssay <- function(x, i, new.assay) {
     )
   }
   row.append <- x@rowFlex == "free"
-  mappedRowNames(x@rowMap, i, append = row.append) <- rownames(new.assay)
   col.append <- x@colFlex == "free"
+  mappedRowNames(x@rowMap, i, append = row.append) <- rownames(new.assay)
   mappedRowNames(x@colMap, i, append = col.append) <- colnames(new.assay)
   assays[[i]] <- resetDimNames(subsetMatByDimNames(
     new.assay,

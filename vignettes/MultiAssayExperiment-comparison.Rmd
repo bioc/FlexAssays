@@ -18,8 +18,8 @@ BiocStyle::markdown()
 # Introduction
 
 The `FlexAssays` is conceptually related to [`MultiAssayExperiment`](https://www.bioconductor.org/packages/release/bioc/html/MultiAssayExperiment.html) (MAE), as both aim to store and organize multiple matrix-like assay datasets. 
-However, there are several key distinctions that make `FlexAssays` more suitable 
-for certain use cases:
+However, there are several key distinctions that make `FlexAssays` more 
+suitable for certain use cases:
 
 * Flexibility on both rows and columns
 * Consistency with matrix-like objects
@@ -49,14 +49,14 @@ fa <- FlexAssays(exps)
 fa
 ```
 
-As we can see, a `FlexAssays` can hold any matrix-like objects which contain row / column 
-names as character vectors and can be subset with `x[i, j]`, including the commonly used 
-S4 object `SummarizedExperiment`.
+As we can see, a `FlexAssays` can hold any matrix-like objects which contain 
+row / column names as character vectors and can be subset with `x[i, j]`, 
+including the commonly used S4 object `SummarizedExperiment`.
 
 # Extract an assay
 
-For both `MultiAssayExperiment` and `FlexAssays`, an assay can be extracted with 
-`[[`:
+For both `MultiAssayExperiment` and `FlexAssays`, an assay can be extracted 
+with `[[`:
 ```{r}
 fa[[2]]
 ```
@@ -66,19 +66,20 @@ miniACC[[2]]
 ```
 
 That means both classes can use common extraction methods like a normal `list`. 
-The main specification for `FlexAssays` is to use operations supported by a normal
-matrix.
+The main specification for `FlexAssays` is to use operations supported by a 
+normal matrix.
 
 # `rownames()` and `colnames()`
 
-For a `MultiAssayExperiment`, `rownames()`/`colnames()` will return a list containing 
-corresponding dimension names for each experiment:
+For a `MultiAssayExperiment`, `rownames()`/`colnames()` will return a list 
+containing corresponding dimension names for each experiment:
+
 ```{r}
 rownames(miniACC)
 ```
 
-In contrast, `FlexAssays` returns a character vector of the shared row or column 
-names across all assays, just like a standard matrix-like object.
+In contrast, `FlexAssays` returns a character vector of the shared row or 
+column names across all assays, just like a standard matrix-like object.
 
 ```{r}
 rownames(fa)
@@ -87,8 +88,9 @@ rownames(fa)
 # Subsetting by rows or columns
 
 ## Character indices
-Since we can treat a `FlexAssays` as a matrix with different layers. The `[i, j]` operation 
-should also work well. For example, we subset `fa` with dimension names:
+Since we can treat a `FlexAssays` as a matrix with different layers. 
+The `[i, j]` operation should also work well. For example, we subset `fa` with 
+dimension names:
 
 ```{r}
 i <- sample(rownames(fa), 10)
@@ -97,14 +99,15 @@ fa[i, j]
 ```
 
 A `MultiAssayExperiment` can also be subset according to shared dimension names:
+
 ```{r}
 miniACC[i, j]
 ```
 
 ## Integer indices
 
-A `FlexAssays` can be subset with row / column indices. For example subset the first 
-10 shared dimensions:
+A `FlexAssays` can be subset with row / column indices. For example subset the 
+first 10 shared dimensions:
 ```{r}
 fa[1:10, 1:10]
 ```
@@ -122,8 +125,8 @@ Here the first 10 shared columns can be guaranteed subset.
 all(rownames(colData(mini2)) == rownames(colData(miniACC))[1:10])
 ```
 
-However, `[i, ]` simply subset the first 10 rows for each experiment. The extracted 
-rows are quite non-predictable.
+However, `[i, ]` simply subset the first 10 rows for each experiment. The 
+extracted rows are quite non-predictable.
 
 ```{r}
 unique(unlist(rownames(mini2)))
@@ -131,30 +134,34 @@ unique(unlist(rownames(mini2)))
 
 ## logical indices
 
-Subsetting a `FlexAssays` with logical indices is also on the shared rows / columns.
+Subsetting a `FlexAssays` with logical indices is also on the shared 
+rows / columns.
 
 ```{r}
-i <- sample(c(TRUE, FALSE), nrow(fa), replace = T)
-j <- sample(c(TRUE, FALSE), ncol(fa), replace = T)
+i <- sample(c(TRUE, FALSE), nrow(fa), replace = TRUE)
+j <- sample(c(TRUE, FALSE), ncol(fa), replace = TRUE)
 fa[i, j]
 ```
 
-For a `MultiAssayExperiment`, the behavior is not clear and may cause an out-of-bounds error:
+For a `MultiAssayExperiment`, the behavior is not clear and may cause an 
+out-of-bounds error:
+
 ```{r, error=TRUE}
 miniACC[i, j]
 ```
 
 ## Summary
 
-In summary, `FlexAssays` is designed for scenarios where assays differ in both row and column 
-dimensions but still benefit from consistent matrix-like behavior. Compared to 
-`MultiAssayExperiment`, it provides:
+In summary, `FlexAssays` is designed for scenarios where assays differ in both 
+row and column dimensions but still benefit from consistent matrix-like 
+behavior. Compared to `MultiAssayExperiment`, it provides:
 
 * Familiar and predictable subsetting operations
 * Lightweight and consistent behavior with standard matrix classes
 
-These features make it a complementary and user-friendly alternative to `MultiAssayExperiment`, 
-especially for use cases in single-cell and spatial data integration workflows.
+These features make it a complementary and user-friendly alternative to 
+`MultiAssayExperiment`, especially for use cases in single-cell and spatial 
+data integration workflows.
 
 # Session information
 
