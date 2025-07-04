@@ -1,10 +1,10 @@
 Package: FlexAssays
 Type: Package
 Title: Flexible Container for Matrix-Like Assays with Logical Dimension Mapping
-Version: 0.99.3
+Version: 0.99.4
 Authors@R: c(
     person("Yuchen", "Li", role = c("aut", "cre"), 
-           email = "ycli1995@outlook.com"),
+           email = "ycli1995@outlook.com",
            comment = c("0009-0003-8612-4425"))
 Description: A framework for organizing multiple matrix-like assays with 
     different dimensions. Uses logical matrices to manage shared or unique 
