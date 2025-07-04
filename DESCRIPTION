@@ -1,7 +1,7 @@
 Package: FlexAssays
 Type: Package
 Title: Flexible Container for Matrix-Like Assays with Logical Dimension Mapping
-Version: 0.99.1
+Version: 0.99.2
 Authors@R: c(
     person("Yuchen", "Li", role = c("aut", "cre"), 
            email = "ycli1995@outlook.com"))

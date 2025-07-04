@@ -55,7 +55,7 @@ sparseLogMap <- function(x = character(), ncol = 0, names = NULL, ...) {
   )
   colnames(out) <- names
   rownames(out) <- x
-  return(out)
+  out
 }
 
 #' Helper Functions for Sparse Logical Maps
@@ -139,7 +139,7 @@ NULL
   if (i > ncol(x)) {
     new.mat <- SVT_SparseArray(
       Matrix(new.mat, ncol = 1, sparse = TRUE),
-      "logical"
+      type = "logical"
     )
     colnames(new.mat) <- new.name
     if (ncol(x) > 0) {
